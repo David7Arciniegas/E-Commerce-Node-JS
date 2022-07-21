@@ -1,10 +1,31 @@
 // Models
-const { Comment } = require('../models/comment.model');
-const { User } = require('../models/user.model');
-const { Post } = require('../models/post.model');
+const { Cart } = require('../models/carts.model');
+const { Users } = require('../models/users.model');
+const { Products } = require('../models/products.model');
 
 // Utils
 const { catchAsync } = require('../utils/catchAsync.util');
+
+const createProduct = catchAsync(async (req, res, next) => {
+	const { productId, quantity } = req.body;
+	const { sessionUser } = req;
+
+	const newProduct = await Products.create({
+		productId: sessionUser.id,
+		quantity,
+		
+	});
+
+	res.status(201).json({
+		status: 'success',
+		newCart,
+	});
+});
+
+
+
+
+
 
 const getAllComments = catchAsync(async (req, res, next) => {
 	// Deep includes
@@ -26,21 +47,7 @@ const getAllComments = catchAsync(async (req, res, next) => {
 	});
 });
 
-const createComment = catchAsync(async (req, res, next) => {
-	const { postId, comment } = req.body;
-	const { sessionUser } = req;
 
-	const newComment = await Comment.create({
-		userId: sessionUser.id,
-		postId,
-		comment,
-	});
-
-	res.status(201).json({
-		status: 'success',
-		newComment,
-	});
-});
 
 const getCommentById = catchAsync(async (req, res, next) => {
 	const { comment } = req;
