@@ -15,9 +15,11 @@ const { protectSession } = require('../middlewares/auth.middleware');
 
 const commentsRouter = express.Router();
 
+commentsRouter.route('/').get(getAllComments).post(createComment);
+
 commentsRouter.use(protectSession);
 
-commentsRouter.route('/').get(getAllComments).post(createComment);
+
 
 commentsRouter
 	.use('/:id', commentExists)

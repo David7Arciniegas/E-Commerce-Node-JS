@@ -2,9 +2,9 @@ const express = require('express');
 
 // Controllers
 const {
-	getAllUsers,
+	getAllOrders,
 	createUser,
-	getUserById,
+	getOrdersById,
 	updateUser,
 	deleteUser,
 	login,
@@ -24,17 +24,18 @@ const usersRouter = express.Router();
 
 usersRouter.post('/', createUserValidators, createUser);
 
-usersRouter.post('/login', login);
+usersRouter.post('/login', createLoginValidator, login);
 
 usersRouter.use(protectSession);
 
-usersRouter.get('/', getAllUsers);
+usersRouter.get('/me', getAllProducts);
 
 usersRouter
 	.use('/:id', userExists)
 	.route('/:id')
-	.get(getUserById)
-	.patch(protectUserAccount, updateUser)
-	.delete(protectUserAccount, deleteUser);
+	.get('/orders/:id', getOrdersById, userExists)
+	.get('/orders', getAllOrders, userExists)
+	.patch('/:id', protectUserAccount, updateUser)
+	.delete('/:id', protectUserAccount, deleteUser);
 
 module.exports = { usersRouter };

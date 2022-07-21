@@ -1,127 +1,172 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 
 // Models
-const { User } = require('../models/user.model');
-const { Post } = require('../models/post.model');
-const { Comment } = require('../models/comment.model');
+const { Users } = require("../models/users.model");
+const { Orders } = require("../models/orders.model");
+const { Products } = require("../models/products.model");
+const { Carts } = require("../models/carts.model");
 
 // Utils
-const { catchAsync } = require('../utils/catchAsync.util');
-const { AppError } = require('../utils/appError.util');
-const { Email } = require('../utils/email.util');
+const { catchAsync } = require("../utils/catchAsync.util");
+const { AppError } = require("../utils/appError.util");
+const { Email } = require("../utils/email.util");
 
 // Gen secrets for JWT, require('crypto').randomBytes(64).toString('hex')
 
-dotenv.config({ path: './config.env' });
+dotenv.config({ path: "./config.env" });
 
-const getAllUsers = catchAsync(async (req, res, next) => {
-	const users = await User.findAll({
-		include: [
-			{ model: Post, include: { model: Comment, include: User } },
-			{ model: Comment },
-		],
-	});
 
-	res.status(200).json({
-		status: 'success',
-		users,
-	});
+const getAllProducts = catchAsync(async (req, res, next) => {
+  const userId = req.sessionUser.id;
+  const products = await Products.findAll({
+    where: { userId },
+  });
+
+  if (!products) {
+    return next(new AppError("No products found for that user", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    products,
+  });
 });
 
 const createUser = catchAsync(async (req, res, next) => {
-	const { name, age, email, password } = req.body;
+  const { username, email, password } = req.body;
 
-	// Hash password
-	const salt = await bcrypt.genSalt(12);
-	const hashPassword = await bcrypt.hash(password, salt);
+  // Hash password
+  const salt = await bcrypt.genSalt(12);
+  const hashPassword = await bcrypt.hash(password, salt);
 
-	const newUser = await User.create({
-		name,
-		age,
-		email,
-		password: hashPassword,
-	});
+  const newUser = await User.create({
+    username,
+    email,
+    password: hashPassword,
+  });
 
-	// Remove password from response
-	newUser.password = undefined;
+  // Remove password from response
+  newUser.password = undefined;
 
-	// Send welcome email
-	await new Email(email).sendWelcome(name);
+  // Send welcome email
+  await new Email(email).sendWelcome(username);
 
-	res.status(201).json({
-		status: 'success',
-		newUser,
-	});
+  res.status(201).json({
+    status: "success",
+    newUser,
+  });
 });
 
 const getUserById = catchAsync(async (req, res, next) => {
-	const { user } = req;
+  const { user } = req;
 
-	res.status(200).json({
-		status: 'success',
-		user,
-	});
+  res.status(200).json({
+    status: "success",
+    user,
+  });
 });
 
 const updateUser = catchAsync(async (req, res, next) => {
-	const { user } = req;
-	const { name } = req.body;
+  const { user } = req;
+  const { username, email } = req.body;
 
-	await user.update({ name });
+  await user.update({ username, email });
 
-	res.status(204).json({ status: 'success' });
+  res.status(204).json({ status: "success" });
 });
 
+
 const deleteUser = catchAsync(async (req, res, next) => {
-	const { user } = req;
+  const { user } = req;
 
-	// await user.destroy();
-	await user.update({ status: 'deleted' });
+  // await user.destroy();
+  await user.update({ status: "deleted" });
 
-	res.status(204).json({ status: 'success' });
+  res.status(204).json({ status: "success" });
 });
 
 const login = catchAsync(async (req, res, next) => {
-	const { email, password } = req.body;
+  const { email, password } = req.body;
 
-	// Validate credentials (email)
-	const user = await User.findOne({
-		where: {
-			email,
-			status: 'active',
-		},
+
+  
+const getAllOrders = catchAsync(async (req, res, next) => {
+	const userId = req.sessionUser.id;
+	const orders = await Orders.findAll({
+	  where: { userId },
+	  include: [{model: Carts}, {model: Products}],
+	});
+  
+	if (!orders) {
+	  return next(new AppError("No orders found for that user", 404));
+	}
+  
+	res.status(200).json({
+	  status: "success",
+	  orders,
+	});
+  });
+
+  exports.getOrderByUserId = catchAsync(async (req, res, next) => {
+	const userId = req.sessionUser.id
+	const orders = await Orders.findAll({
+		where: { userId,
+			status: 'active' },
+		include: [{ model: Carts }, {model: Products }],
 	});
 
-	if (!user) {
-		return next(new AppError('Credentials invalid', 400));
-	}
+	if (!orders) {
+		return res.status(404).json({
+		  status: "error",
+		  message: "Order not found",
+		});
+	  }
 
-	// Validate password
-	const isPasswordValid = await bcrypt.compare(password, user.password);
-
-	if (!isPasswordValid) {
-		return next(new AppError('Credentials invalid', 400));
-	}
-
-	// Generate JWT (JsonWebToken) ->
-	const token = await jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-		expiresIn: '30d',
-	});
-
-	// Send response
 	res.status(200).json({
 		status: 'success',
-		token,
+		data: { orders },
 	});
 });
 
+  // Validate credentials (email)
+  const user = await Users.findOne({
+    where: {
+      email,
+      status: "active",
+    },
+  });
+
+  if (!user) {
+    return next(new AppError("Credentials invalid", 400));
+  }
+
+  // Validate password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    return next(new AppError("Credentials invalid", 400));
+  }
+
+  // Generate JWT (JsonWebToken) ->
+  const token = await jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "30d",
+  });
+
+  // Send response
+  res.status(200).json({
+    status: "success",
+    token,
+  });
+});
+
 module.exports = {
-	getAllUsers,
-	createUser,
-	getUserById,
-	updateUser,
-	deleteUser,
-	login,
+  getAllProducts,
+  createUser,
+  getUserById,
+  updateUser,
+  deleteUser,
+  getAllOrders,
+  login,
 };
