@@ -22,7 +22,7 @@ const Orders = db.define('orders', {
 	status: {
 		type: DataTypes.STRING,
 		allowNull: false,
-		defaultValue: 'active',
+		defaultValue: 'filled',
 	},
 });
 

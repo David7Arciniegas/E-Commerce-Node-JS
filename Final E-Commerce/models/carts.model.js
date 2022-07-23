@@ -8,9 +8,7 @@ const Carts = db.define('carts', {
 		allowNull: false,
 	},
 	userId: {
-		primaryKey: true,
 		type: DataTypes.INTEGER,
-		autoIncrement: true,
 		allowNull: false,
 	},
 	status: {

@@ -9,15 +9,11 @@ const ProductsInCart = db.define('productsInCart', {
 		allowNull: false,
 	},
 	cartId: {
-		primaryKey: true,
 		type: DataTypes.INTEGER,
-		autoIncrement: true,
 		allowNull: false,
 	},
 	productId: {
-		primaryKey: true,
 		type: DataTypes.INTEGER,
-		autoIncrement: true,
 		allowNull: false,
 	},
 	quantity: {

@@ -6,18 +6,21 @@ const { AppError } = require('../utils/appError.util');
 const { catchAsync } = require('../utils/catchAsync.util');
 
 const productExists = catchAsync(async (req, res, next) => {
-	const { id } = req.params;
+	let { productId, quantity } = req.body;
+	if(!productId){
+		productId = req.params;
+	}
 
 	const product = await Products.findOne({
-		where: { id },
+		where: { id:productId, status:'active'},
 		
 	});
 
 	if (!product) {
-		return next(new AppError('Post not found', 404));
+		return next(new AppError('Product not found', 404));
 	}
 
-	req.post = product;
+	req.product = product;
 	next();
 });
 
