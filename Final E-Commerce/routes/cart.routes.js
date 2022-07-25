@@ -2,30 +2,31 @@ const express = require('express');
 
 // Controller
 const {
-	getAllComments,
-	createComment,
-	getCommentById,
-	updateComment,
-	deleteComment,
-} = require('../controllers/comments.controller');
+	addProductToCart,
+    updateCartProduct,
+    removeProductFromCart,
+    purchaseUserCart,
+} = require('../controllers/cart.controller');
 
 // Middlewares
-const { commentExists } = require('../middlewares/comments.middleware');
+const { cartExists } = require('../middlewares/cart.middleware');
 const { protectSession } = require('../middlewares/auth.middleware');
+const { getAllProducts } = require('../controllers/products.controller');
 
-const commentsRouter = express.Router();
+const cartRouter = express.Router();
 
-commentsRouter.route('/').get(getAllComments).post(createComment);
+cartRouter.route('/').get(getAllProducts);
 
-commentsRouter.use(protectSession);
+cartRouter.use(protectSession);
 
 
 
-commentsRouter
-	.use('/:id', commentExists)
+cartRouter
+	.use('/:id', cartExists)
 	.route('/:id')
-	.get(getCommentById)
-	.patch(updateComment)
-	.delete(deleteComment);
+	.post('/add-product', addProductToCart)
+	.patch('/update-cart', updateCartProduct)
+	.delete('/:productId', removeProductFromCart)
+	.post('/purchase', purchaseUserCart)
 
 module.exports = { commentsRouter };

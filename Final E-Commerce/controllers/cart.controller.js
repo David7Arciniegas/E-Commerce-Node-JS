@@ -9,6 +9,7 @@ const {Orders} = require("../models/orders.model");
 // Utils
 const {catchAsync} = require("../utils/catchAsync.util");
 
+// Add Product to Cart
 const addProductToCart = catchAsync(async (req, res, next) => {
     const userId = req.sessionUser.id;
     const {productId, quantity} = req.body;
@@ -51,7 +52,9 @@ const addProductToCart = catchAsync(async (req, res, next) => {
     });
 });
 
-const updateaCartProduct = catchAsync(async (req, res, next) => {
+// Update Cart Product
+
+const updateCartProduct = catchAsync(async (req, res, next) => {
     const userId = req.sessionUser.id;
     const {productId, newQty} = req.body;
     const {product} = req;
@@ -156,9 +159,9 @@ const purchaseUserCart = catchAsync(async (req, res, next) => {
 
 
 module.exports = {
-    getAllComments,
-    createComment,
-    getCommentById,
-    updateComment,
-    deleteComment,
+    addProductToCart,
+    updateCartProduct,
+    removeProductFromCart,
+    purchaseUserCart,
+  
 };
