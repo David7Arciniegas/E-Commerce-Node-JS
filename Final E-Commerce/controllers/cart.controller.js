@@ -1,6 +1,5 @@
 // Models
 const {Cart} = require("../models/carts.model");
-const {Users} = require("../models/users.model");
 const {Products} = require("../models/products.model");
 const {ProductsInCart} = require("../models/productsInCart.model");
 const {Orders} = require("../models/orders.model");

@@ -11,15 +11,14 @@ const checkResult = (req, res, next) => {
 
 		const message = errorMsgs.join('. ');
 
-		return next(new AppError(message, 400));
+
 	}
 
 	next();
 };
 
 const createUserValidators = [
-	body('name').notEmpty().withMessage('Name cannot be empty'),
-	body('age').isNumeric().withMessage('Age must be a number'),
+	body('username').notEmpty().withMessage('Name cannot be empty'),
 	body('email').isEmail().withMessage('Must provide a valid email'),
 	body('password')
 		.isLength({ min: 8 })
@@ -29,4 +28,54 @@ const createUserValidators = [
 	checkResult,
 ];
 
-module.exports = { createUserValidators };
+
+const loginValidators = [
+	body('email').isEmail().withMessage('Must provide a valid email'),
+	body('password')
+		.isLength({ min: 8 })
+		.withMessage('Password must be at least 8 characters long')
+		.isAlphanumeric()
+		.withMessage('Password must contain letters and numbers'),
+	checkResult,
+];
+
+const createProductValidators = [
+	body('title').notEmpty().withMessage('Name cannot be empty'),
+	body('description').notEmpty().withMessage('description cannot be empty'),
+	body('categoryId').notEmpty().withMessage('categoryId cannot be empty'),
+	body('quantity').notEmpty().withMessage('Quantity cannot be empty').isNumeric()
+		.withMessage('price needs to be numeric'),
+	body('price').notEmpty().withMessage('price cannot be empty').isNumeric()
+		.withMessage('price needs to be numeric'),
+	checkResult,
+];
+
+const createCategoryValidators = [
+	body('name').notEmpty().withMessage('Name cannot be empty'),
+	checkResult,
+];
+
+const updateProductValidators = [
+	body('title').notEmpty().withMessage('Name cannot be empty'),
+	body('description').notEmpty().withMessage('description cannot be empty'),
+	body('quantity').notEmpty().withMessage('Quantity cannot be empty').isNumeric()
+		.withMessage('price needs to be numeric'),
+	body('price').notEmpty().withMessage('price cannot be empty').isNumeric()
+		.withMessage('price needs to be numeric'),
+	checkResult,
+];
+
+const updateCategoryValidators = [
+	body('name').notEmpty().withMessage('Name cannot be empty'),
+	checkResult,
+];
+
+const updateUserValidators = [
+	body('username').notEmpty().withMessage('Name cannot be empty'),
+	body('email').isEmail().withMessage('Must provide a valid email'),
+	checkResult,
+];
+
+
+module.exports = { createUserValidators, loginValidators, updateUserValidators,
+	createProductValidators, createCategoryValidators, updateProductValidators, updateCategoryValidators};

@@ -7,10 +7,7 @@ const path = require('path');
 
 // Routers
 const { usersRouter } = require('./routes/users.routes');
-const { postsRouter } = require('./routes/posts.routes');
-const { commentsRouter } = require('./routes/comments.routes');
-const { viewsRouter } = require('./routes/views.routes');
-
+const { productsRouter } = require('./routes/products.routes');
 // Global err controller
 const { globalErrorHandler } = require('./controllers/error.controller');
 
@@ -50,10 +47,8 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 else app.use(morgan('combined'));
 
 // Define endpoints
-app.use('/', viewsRouter);
 app.use('/api/v1/users', usersRouter);
-app.use('/api/v1/posts', postsRouter);
-app.use('/api/v1/comments', commentsRouter);
+app.use('/api/v1/products', productsRouter);
 
 // Handle incoming unknown routes to the server
 app.all('*', (req, res, next) => {

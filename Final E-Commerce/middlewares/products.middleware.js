@@ -1,18 +1,15 @@
 // Models
 const { Products } = require('../models/products.model');
-
+const { Categories } = require('../models/categories.model');
 // Utils
 const { AppError } = require('../utils/appError.util');
 const { catchAsync } = require('../utils/catchAsync.util');
 
 const productExists = catchAsync(async (req, res, next) => {
-	let { productId, quantity } = req.body;
-	if(!productId){
-		productId = req.params;
-	}
 
+	let {id} = req.params;
 	const product = await Products.findOne({
-		where: { id:productId, status:'active'},
+		where: { id, status:'active'},
 		
 	});
 
@@ -24,4 +21,20 @@ const productExists = catchAsync(async (req, res, next) => {
 	next();
 });
 
-module.exports = { productExists };
+const categoryExists = catchAsync(async (req, res, next) => {
+	let { id } = req.params;
+	console.log(id)
+	const category = await Categories.findOne({
+		where: { id, status:'active'},
+
+	});
+
+	if (!category) {
+		return next(new AppError('Category not found', 404));
+	}
+
+	req.category = category;
+	next();
+});
+
+module.exports = { productExists, categoryExists };

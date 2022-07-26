@@ -11,22 +11,17 @@ const {
 // Middlewares
 const { cartExists } = require('../middlewares/cart.middleware');
 const { protectSession } = require('../middlewares/auth.middleware');
-const { getAllProducts } = require('../controllers/products.controller');
 
 const cartRouter = express.Router();
 
-cartRouter.route('/').get(getAllProducts);
 
 cartRouter.use(protectSession);
 
 
-
 cartRouter
-	.use('/:id', cartExists)
-	.route('/:id')
 	.post('/add-product', addProductToCart)
-	.patch('/update-cart', updateCartProduct)
-	.delete('/:productId', removeProductFromCart)
-	.post('/purchase', purchaseUserCart)
+	.patch('/update-cart', cartExists, updateCartProduct)
+	.delete('/:productId', cartExists, removeProductFromCart)
+	.post('/purchase', cartExists, purchaseUserCart)
 
 module.exports = { commentsRouter };

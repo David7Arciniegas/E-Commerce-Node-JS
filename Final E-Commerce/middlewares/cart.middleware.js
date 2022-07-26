@@ -6,9 +6,9 @@ const { catchAsync } = require('../utils/catchAsync.util');
 const { AppError } = require('../utils/appError.util');
 
 const cartExists = catchAsync(async (req, res, next) => {
-	const { id } = req.params;
+	const userId = req.sessionUser.id;
 
-	const cart = await Comment.findOne({ where: { id } });
+	const cart = await Cart.findOne({ where: { userId:userId, status:'active' } });
 
 	if (!cart) {
 		return next(new AppError('Comment not found', 404));

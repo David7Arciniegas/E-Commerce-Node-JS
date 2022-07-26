@@ -9,15 +9,11 @@ const ProductImgs = db.define('productImgs', {
 		allowNull: false,
 	},
 	imgUrl: {
-		primaryKey: true,
 		type: DataTypes.STRING,
-		autoIncrement: false,
 		allowNull: false,
 	},
 	productId: {
-		primaryKey: true,
 		type: DataTypes.INTEGER,
-		autoIncrement: true,
 		allowNull: false,
 	},
 	status: {

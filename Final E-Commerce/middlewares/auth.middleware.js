@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
 // Models
-const { User } = require('../models/user.model');
+const { Users } = require('../models/users.model');
 
 // Utils
 const { catchAsync } = require('../utils/catchAsync.util');
@@ -30,7 +30,7 @@ const protectSession = catchAsync(async (req, res, next) => {
 	// { id, ... }
 
 	// Check in db that user still exists
-	const user = await User.findOne({
+	const user = await Users.findOne({
 		where: { id: decoded.id, status: 'active' },
 	});
 

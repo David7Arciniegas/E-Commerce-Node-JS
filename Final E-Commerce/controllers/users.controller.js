@@ -11,29 +11,14 @@ const { Carts } = require("../models/carts.model");
 // Utils
 const { catchAsync } = require("../utils/catchAsync.util");
 const { AppError } = require("../utils/appError.util");
-const { Email } = require("../utils/email.util");
+//const { Email } = require("../utils/email.util");
 
 // Gen secrets for JWT, require('crypto').randomBytes(64).toString('hex')
 
 dotenv.config({ path: "./config.env" });
 
 
-const getAllProducts = catchAsync(async (req, res, next) => {
-  const userId = req.sessionUser.id;
-  const products = await Products.findAll({
-    where: { userId },
-  });
-
-  if (!products) {
-    return next(new AppError("No products found for that user", 404));
-  }
-
-  res.status(200).json({
-    status: "success",
-    products,
-  });
-});
-
+// endpoint POST /
 const createUser = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
 
@@ -41,7 +26,7 @@ const createUser = catchAsync(async (req, res, next) => {
   const salt = await bcrypt.genSalt(12);
   const hashPassword = await bcrypt.hash(password, salt);
 
-  const newUser = await User.create({
+  const newUser = await Users.create({
     username,
     email,
     password: hashPassword,
@@ -51,7 +36,7 @@ const createUser = catchAsync(async (req, res, next) => {
   newUser.password = undefined;
 
   // Send welcome email
-  await new Email(email).sendWelcome(username);
+  //await new Email(email).sendWelcome(username);
 
   res.status(201).json({
     status: "success",
@@ -59,15 +44,23 @@ const createUser = catchAsync(async (req, res, next) => {
   });
 });
 
-const getUserById = catchAsync(async (req, res, next) => {
-  const { user } = req;
-
-  res.status(200).json({
-    status: "success",
-    user,
-  });
+// endpoint GET /me
+const getAllProductsById = catchAsync(async (req, res, next) => {
+    const userId = req.sessionUser.id;
+    const products = await Products.findAll({
+        where: { userId },
+    });
+    if (!products) {
+        return next(new AppError("No products found for that user", 404));
+    }
+    res.status(200).json({
+        status: "success",
+        products,
+    });
 });
 
+
+//ENDPOINT PATCH
 const updateUser = catchAsync(async (req, res, next) => {
   const { user } = req;
   const { username, email } = req.body;
@@ -77,7 +70,7 @@ const updateUser = catchAsync(async (req, res, next) => {
   res.status(204).json({ status: "success" });
 });
 
-
+// ENDPOINT DELETE
 const deleteUser = catchAsync(async (req, res, next) => {
   const { user } = req;
 
@@ -87,49 +80,48 @@ const deleteUser = catchAsync(async (req, res, next) => {
   res.status(204).json({ status: "success" });
 });
 
-const login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
 
+const getUserOrders = catchAsync(async (req, res, next) => {
+    const userId = req.sessionUser.id;
+    const orders = await Orders.findAll({
+        where: { userId },
+        include: [{model: Carts}],
+    });
 
-  
-const getAllOrders = catchAsync(async (req, res, next) => {
-	const userId = req.sessionUser.id;
-	const orders = await Orders.findAll({
-	  where: { userId },
-	  include: [{model: Carts}, {model: Products}],
-	});
-  
-	if (!orders) {
-	  return next(new AppError("No orders found for that user", 404));
-	}
-  
-	res.status(200).json({
-	  status: "success",
-	  orders,
-	});
-  });
+    if (!orders) {
+        return next(new AppError("No orders found for that user", 404));
+    }
 
-  exports.getOrderByUserId = catchAsync(async (req, res, next) => {
-	const userId = req.sessionUser.id
-	const orders = await Orders.findAll({
-		where: { userId,
-			status: 'active' },
-		include: [{ model: Carts }, {model: Products }],
-	});
-
-	if (!orders) {
-		return res.status(404).json({
-		  status: "error",
-		  message: "Order not found",
-		});
-	  }
-
-	res.status(200).json({
-		status: 'success',
-		data: { orders },
-	});
+    res.status(200).json({
+        status: "success",
+        orders,
+    });
 });
 
+const getOrdersByUserId = catchAsync(async (req, res, next) => {
+    const userId = req.sessionUser.id
+    const orders = await Orders.findAll({
+        where: { userId,
+            status: 'active' },
+        include: [{ model: Carts }],
+    });
+
+    if (!orders) {
+        return res.status(404).json({
+            status: "error",
+            message: "Order not found",
+        });
+    }
+
+    res.status(200).json({
+        status: 'success',
+        data: { orders },
+    });
+});
+
+//ENDPOINT Login
+const login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
   // Validate credentials (email)
   const user = await Users.findOne({
     where: {
@@ -162,11 +154,11 @@ const getAllOrders = catchAsync(async (req, res, next) => {
 });
 
 module.exports = {
-  getAllProducts,
-  createUser,
-  getUserById,
-  updateUser,
-  deleteUser,
-  getAllOrders,
-  login,
+    createUser,
+    getAllProductsById,
+    updateUser,
+    deleteUser,
+    getUserOrders,
+    getOrdersByUserId,
+    login
 };

@@ -3,40 +3,37 @@ const express = require("express");
 // Controllers
 const {
   getAllProducts,
-  getAllCategories,
-  createCategory,
   createProduct,
   getProductById,
   updateProduct,
   deleteProduct,
+  getAllCategories,
+  createCategory,
   updateCategory,
-} = require("../controllers/posts.controller");
+} = require("../controllers/products.controller");
 
 // Middlewares
-const { productExists } = require("../middlewares/products.middleware");
+const { productExists, categoryExists } = require("../middlewares/products.middleware");
 const { protectSession } = require("../middlewares/auth.middleware");
-const { createProduct } = require("../controllers/products.controller");
-
+const {
+  createProductValidators, createCategoryValidators, updateProductValidators, updateCategoryValidators
+} = require('../middlewares/validators.middleware');
 // Utils
 
 const productsRouter = express.Router();
 
-productsRouter.use(protectSession);
-
 productsRouter
-  .route("/")
-  .post("/", createProduct)
-  .get(getAllProducts)
-  .post(upload.array("postImg", 3), createPost);
+    .use(protectSession)
+    .post("/",createProductValidators, createProduct)
+    .get('/', getAllProducts)
+    .get("/categories", getAllCategories)
+    .get('/:id', getProductById)
+    .patch("/:id",updateProductValidators,productExists, updateProduct)
+    .delete("/:id",productExists, deleteProduct)
 
-productsRouter
-  .use("/:id", postExists)
-  .route("/:id")
-  .get("/:id", getProductById)
-  .patch("/:id", updateProduct)
-  .delete("/:id", deleteProduct)
-  .get("/categories", getAllCategories)
-  .post("/categories", createCategory)
-  .patch("/categories/:id", updateCategory);
+    .post("/categories",createCategoryValidators, createCategory)
+    .patch("/categories/:id",updateCategoryValidators,categoryExists, updateCategory);
+//.post(upload.array("postImg", 3), createPost);
+
 
 module.exports = { productsRouter };

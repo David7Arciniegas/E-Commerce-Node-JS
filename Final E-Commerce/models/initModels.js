@@ -3,10 +3,9 @@ const { Users } = require("./users.model");
 const { Carts } = require("./carts.model");
 const { Categories } = require("./categories.model");
 const { Orders } = require("./orders.model");
-const { Carts } = require("./carts.model");
 const { ProductsInCart } = require("./productsInCart.model");
-const { ProductsImgs } = require("./productsImgs.model");
-
+const { ProductImgs } = require("./productImgs.model");
+const { Products } = require("./products.model");
 const initModels = () => {
   // 1 User <----> M Orders
   Users.hasMany(Orders, { foreignKey: "userId" });
@@ -24,9 +23,9 @@ const initModels = () => {
   Orders.belongsTo(Carts, { foreignKey: "Id" });
   Carts.belongsTo(Orders);
 
-  // 1 Products <----> M ProductsImgs
-  Products.hasMany(ProductsImgs, { foreignKey: "productId" });
-  ProductsImgs.belongsTo(Products);
+  // 1 Products <----> M ProductImgs
+  Products.hasMany(ProductImgs, { foreignKey: "productId" });
+  ProductImgs.belongsTo(Products);
 
   // 1 Products <----> 1 ProductsInCart
   Products.belongsTo(ProductsInCart, { foreignKey: "productId" });
